@@ -13,11 +13,11 @@ Clone into `ComfyUI/custom_nodes` and restart ComfyUI. No extra dependencies; it
 ## Files
 
 ```text
-ComfyUI/models/text_encoders/qwen3.5-2b-base/        # Qwen/Qwen3.5-2B-Base (safetensors + tokenizer files)
+ComfyUI/models/text_encoders/qwen3.5-2b-base/        # Qwen3.5-2B-Base (included in the HF repo under qwen3.5-2b-base/)
 ComfyUI/models/llm_adapters/anima-qwen35/
   qwen35-conditioner-v3-distill-ep02-bf16.safetensors
   t5_bundle/{tokenizer.json, tokenizer_config.json, anima_vocab.json}
-ComfyUI/models/loras/anima-lora-ep14.safetensors     # optional, matched to this conditioner
+ComfyUI/models/loras/anima-lora-ep14.safetensors     # optional
 ```
 
 The tokenizer bundle must stay next to the conditioner file; the node checks that it matches the conditioner's embedding table.
@@ -25,7 +25,7 @@ The tokenizer bundle must stay next to the conditioner file; the node checks tha
 ## Usage
 
 1. **Anima Qwen3.5 Adapter Loader** (`loaders/anima`): select the Qwen3.5 checkpoint and the conditioner. Connect its `CLIP` output to the usual CLIP Text Encode nodes.
-2. **Anima Qwen3.5 LoRA Loader**: use it instead of the normal LoRA loader for LoRAs trained with this conditioner (connect Anima `MODEL` and the `CLIP` from step 1).
+2. Optional: the conditioner works with the base Anima model alone. To add the LoRA trained with it, use **Anima Qwen3.5 LoRA Loader** instead of the normal LoRA loader (connect Anima `MODEL` and the `CLIP` from step 1).
 3. Anima model loader, sampler and VAE are used as normal. See `examples/anima_qwen35.json`.
 
 Set `device` to `cpu` on the adapter loader if VRAM is tight.
