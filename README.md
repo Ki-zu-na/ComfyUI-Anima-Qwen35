@@ -32,6 +32,16 @@ Set `device` to `cpu` on the adapter loader if VRAM is tight.
 
 The node also loads experimental "rewire" Anima DiT files automatically when present; normal Anima checkpoints are unaffected.
 
+## How it works
+
+Anima's built-in text path feeds Qwen3-0.6B hidden states to an LLM adapter whose queries are T5-tokenizer token embeddings; its 1024-d output is the DiT's cross-attention context. This node replaces that path, the DiT is unchanged:
+
+- Qwen3.5-2B-Base hidden states are tapped at layers [2, 3, 6, 9, 12, 21], each RMS-normalised and projected to 512, then concatenated (3072) and normalised.
+- An adapter with the original layout (6 layers, width 1024, 16 heads) cross-attends to these features; its queries come from the extended tokenizer bundle (52,766 rows: the original 32,100 plus Chinese/Japanese characters and words).
+- Its 1024-d output is used as Anima's cross-attention context. Padding positions are zeroed, short prompts are padded to 512 tokens, long prompts are not truncated, and prompt weights apply to the adapter outputs.
+
+Architecture details (tap layers, widths, vocabulary size) are read from the conditioner's safetensors metadata, not hard-coded.
+
 ## License
 
 Code: GPL-3.0 (same as ComfyUI). The weights have their own licenses: the conditioner and LoRA follow the CircleStone Labs Non-Commercial License (derivatives of Anima); Qwen3.5 is Apache-2.0.
